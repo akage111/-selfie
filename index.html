@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<link rel="icon" href="favicon_v2.png" type="image/png">
+  <meta charset="utf-8" />
+  <title>🤳#selfie✨</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root{
+      --feed-width: 600px; /* 投稿カラム幅 */
+      --gap: 36px;
+      --sidebar-width: 240px;
+      --bg: #fafafa;
+    }
+    html,body{height:100%;margin:0;background:var(--bg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;color:#222}
+    /* レイアウト: 中央にフィード、その右にサイドバー（flex） */
+    .layout {
+      display:flex;
+      justify-content:center; /* 横方向中央寄せ */
+      gap:var(--gap);
+      max-width: calc(var(--feed-width) + var(--gap) + var(--sidebar-width));
+      margin: 0 auto;
+      padding: 40px 16px;
+    }
+
+    /* フィード（中央カラム） */
+    .feed {
+  width: var(--feed-width);
+  margin: 0 auto;           /* 画面中央に配置 */
+  box-sizing: border-box;
+}
+
+
+
+    .post {
+      width: 100%;
+      margin: 28px 0;
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #e6e6e6;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+    }
+    .post img {
+      width: 100%;
+      height: auto;
+      display:block;
+    }
+    .meta {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:12px 14px;
+      gap:12px;
+    }
+    .date { font-size:13px;color:#777; }
+    .like {
+      font-size:24px;
+      color:#b6b6b6;
+      cursor:pointer;
+      transition: transform .18s ease, color .18s ease;
+      user-select:none;
+    }
+    .like.liked {
+      color:#ee3060;
+      transform: scale(1.15);
+    }
+    .caption {
+      padding: 0 14px 16px 14px;
+      font-size:15px;
+      color:#333;
+      line-height:1.5;
+    }
+
+    /* サイドバー（右側） */
+        .sidebar {
+  position: fixed;               /* ← sticky から fixed に変更 */
+  top: 50%;                      /* 画面の縦中央 */
+  right: 200px;                   /* 画面右からの距離（調整可） */
+  transform: translateY(-50%);   /* 縦中央にぴったり配置 */
+  width: var(--sidebar-width);
+  box-sizing: border-box;
+  z-index: 1000;                 /* 他の要素より前面に出す */
+}
+
+    .ad-box {
+      position: relative;
+      width: 100%;
+      background: #fff;
+      border-radius: 14px;
+      border: 1px solid #e0e0e0;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    }
+    .ad-box img{
+      width: 100%;
+      display: block;
+      height: auto;
+     transition: transform 0.3s ease;
+    }
+.ad-box:hover img {
+  transform: scale(1.05); /* ホバーで5%拡大 */
+}
+    /* adラベルは画像の外（ad-box の右上外側） */
+    .ad-label {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: #fff;
+      border: 1px solid #ddd;
+      color: #444;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    /* レスポンシブ: 狭い画面ではサイド非表示 */
+    @media (max-width: 900px){
+      .layout{ padding: 20px 12px;}
+      .sidebar{ display:none; }
+      :root{ --feed-width: calc(100% - 32px); }
+      .feed{ width:100%; }
+    }
+/* いいね吹き出し */
+.like-tip {
+  position: fixed;
+  left: 200px; 
+  top: 50%;
+  transform: translateY(-50%);
+  background: #fff;
+  border: 2px solid #ee3060;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  font-size: 14px;
+  color: #222;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2000;
+  max-width: 180px;
+  animation: slideIn 0.4s ease;
+}
+
+.like-tip-text {
+  margin-bottom: 10px;
+  text-align: center;
+  color: #ee3060;
+}
+
+.like-tip button {
+  background: #ee3060;
+  border: none;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translate(-50px, -50%); }
+  to { opacity: 1; transform: translateY(-50%); }
+}
+
+  </style>
+</head>
+<body>
+<div id="likeTip" class="like-tip">
+ <div class="like-tip-text">Try giving a ❤️ like!</div>
+  <button id="likeTipBtn">OK</button>
+ </div>
+
+  <div class="layout">
+    <main class="feed" id="feed"></main>
+
+    <aside class="sidebar">
+      <div class="ad-box" id="adBox" role="button" aria-label="sponsored">
+        <div class="ad-label">Ad</div>
+        <img id="sideAd" src="ad1.png" alt="広告">
+      </div>
+        </aside>
+  </div>
+
+<script>
+/* ====== 設定 ====== */
+const GROUP = 5; // 何件ごとに広告を切り替えるか
+const selfies = [
+  "selfie.png","selfie1.png","selfie2.png","selfie3.png","selfie4.png",
+  "selfie5.png","selfie6.png","selfie7.png","selfie8.png","selfie9.png",
+  "selfie10.png","selfie11.png","selfie12.png","selfie13.png","selfie14.png",
+  "selfie15.png","selfie16.png","selfie17.png","selfie18.png","selfie19.png",
+  "selfie20.png","selfie21.png"
+];
+const ads = ["ad1.png","ad2.png","ad3.png","ad4.png"];
+/* ================== */
+
+const feed = document.getElementById('feed');
+const sideAdImg = document.getElementById('sideAd');
+
+/* 日付（開いた日）を返す関数 */
+function todayDate(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+
+/* 投稿を生成してフィードに追加 */
+selfies.forEach((src, idx) => {
+  const post = document.createElement('article');
+  post.className = 'post';
+  post.dataset.index = idx + 1;
+
+  post.innerHTML = `
+    <img src="${src}" alt="selfie ${idx+1}">
+    <div class="meta">
+      <div class="date">${todayDate()}</div>
+      <div><i class="fa-regular fa-heart like" title="いいね"></i></div>
+    </div>
+     <div class="caption">#selfie #HUMAN</div>
+`;
+  feed.appendChild(post);
+});
+
+/* いいねのイベント（イベント委任） */
+document.addEventListener('click', (e) => {
+  const t = e.target;
+  if (t.classList && t.classList.contains('like')) {
+    t.classList.toggle('liked');
+    // FontAwesome: toggle reg/solid
+    t.classList.toggle('fa-regular');
+    t.classList.toggle('fa-solid');
+  }
+});
+
+/* 現在画面中央付近に表示されている投稿を取得する関数 */
+function getVisiblePost(){
+  const posts = document.querySelectorAll('.post');
+  const mid = window.innerHeight / 2;
+  let closest = null;
+  let minDist = Infinity;
+  posts.forEach(p => {
+    const r = p.getBoundingClientRect();
+    // 距離は要素の中央とビューポート中央の差
+    const center = r.top + r.height / 2;
+    const dist = Math.abs(center - mid);
+    if (dist < minDist && r.bottom > 0 && r.top < window.innerHeight) {
+      minDist = dist;
+      closest = p;
+    }
+  });
+  return closest;
+}
+
+/* サイド広告を投稿番号に応じて切り替える */
+function updateSideAd(){
+  const cur = getVisiblePost();
+  if (!cur) return;
+  const idx = parseInt(cur.dataset.index, 10);
+  let adIndex = Math.floor((idx - 1) / GROUP);
+  if (adIndex >= ads.length) adIndex = ads.length - 1;
+  sideAdImg.src = ads[adIndex];
+}
+
+/* 初期とスクロール時に広告更新 */
+window.addEventListener('load', updateSideAd);
+window.addEventListener('scroll', () => {
+  // throttle 風に少し遅延を入れると滑らか（軽量）
+  if (window._adTimer) clearTimeout(window._adTimer);
+  window._adTimer = setTimeout(updateSideAd, 60);
+});
+
+/* optional: クリックで広告リンクに飛ばす（仮URL）*/
+document.getElementById('adBox').addEventListener('click', () => {
+  window.open("../hand/hand.html");
+}); 
+// いいね吹き出しの表示・非表示
+const likeTip = document.getElementById('likeTip');
+const likeTipBtn = document.getElementById('likeTipBtn');
+
+likeTipBtn.addEventListener('click', () => {
+  likeTip.style.display = 'none';
+});
+
+</script>
+</body>
+</html>
