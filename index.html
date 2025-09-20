@@ -8,26 +8,26 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root{
-      --feed-width: 600px; /* 投稿カラム幅 */
+      --feed-width: 600px; 
       --gap: 36px;
       --sidebar-width: 240px;
       --bg: #fafafa;
     }
     html,body{height:100%;margin:0;background:var(--bg);font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;color:#222}
-    /* レイアウト: 中央にフィード、その右にサイドバー（flex） */
+   
     .layout {
       display:flex;
-      justify-content:center; /* 横方向中央寄せ */
+      justify-content:center; 
       gap:var(--gap);
       max-width: calc(var(--feed-width) + var(--gap) + var(--sidebar-width));
       margin: 0 auto;
       padding: 40px 16px;
     }
 
-    /* フィード（中央カラム） */
+    
     .feed {
   width: var(--feed-width);
-  margin: 0 auto;           /* 画面中央に配置 */
+  margin: 0 auto;           
   box-sizing: border-box;
 }
 
@@ -73,15 +73,15 @@
       line-height:1.5;
     }
 
-    /* サイドバー（右側） */
+   
         .sidebar {
-  position: fixed;               /* ← sticky から fixed に変更 */
-  top: 50%;                      /* 画面の縦中央 */
-  right: 200px;                   /* 画面右からの距離（調整可） */
-  transform: translateY(-50%);   /* 縦中央にぴったり配置 */
+  position: fixed;               
+  top: 50%;                      
+  right: 200px;                   
+  transform: translateY(-50%);   
   width: var(--sidebar-width);
   box-sizing: border-box;
-  z-index: 1000;                 /* 他の要素より前面に出す */
+  z-index: 1000;                 
 }
 
     .ad-box {
@@ -99,9 +99,9 @@
      transition: transform 0.3s ease;
     }
 .ad-box:hover img {
-  transform: scale(1.05); /* ホバーで5%拡大 */
+  transform: scale(1.05); 
 }
-    /* adラベルは画像の外（ad-box の右上外側） */
+    
     .ad-label {
       position: absolute;
       top: 0;
@@ -116,14 +116,14 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.06);
     }
 
-    /* レスポンシブ: 狭い画面ではサイド非表示 */
+    
     @media (max-width: 900px){
       .layout{ padding: 20px 12px;}
       .sidebar{ display:none; }
       :root{ --feed-width: calc(100% - 32px); }
       .feed{ width:100%; }
     }
-/* いいね吹き出し */
+
 .like-tip {
   position: fixed;
   left: 200px; 
@@ -185,8 +185,8 @@
   </div>
 
 <script>
-/* ====== 設定 ====== */
-const GROUP = 5; // 何件ごとに広告を切り替えるか
+
+const GROUP = 5; 
 const selfies = [
   "selfie.png","selfie1.png","selfie2.png","selfie3.png","selfie4.png",
   "selfie5.png","selfie6.png","selfie7.png","selfie8.png","selfie9.png",
@@ -195,12 +195,12 @@ const selfies = [
   "selfie20.png","selfie21.png"
 ];
 const ads = ["ad1.png","ad2.png","ad3.png","ad4.png"];
-/* ================== */
+
 
 const feed = document.getElementById('feed');
 const sideAdImg = document.getElementById('sideAd');
 
-/* 日付（開いた日）を返す関数 */
+
 function todayDate(){
   const d = new Date();
   const y = d.getFullYear();
@@ -209,7 +209,7 @@ function todayDate(){
   return `${y}-${m}-${day}`;
 }
 
-/* 投稿を生成してフィードに追加 */
+
 selfies.forEach((src, idx) => {
   const post = document.createElement('article');
   post.className = 'post';
@@ -226,18 +226,18 @@ selfies.forEach((src, idx) => {
   feed.appendChild(post);
 });
 
-/* いいねのイベント（イベント委任） */
+
 document.addEventListener('click', (e) => {
   const t = e.target;
   if (t.classList && t.classList.contains('like')) {
     t.classList.toggle('liked');
-    // FontAwesome: toggle reg/solid
+   
     t.classList.toggle('fa-regular');
     t.classList.toggle('fa-solid');
   }
 });
 
-/* 現在画面中央付近に表示されている投稿を取得する関数 */
+
 function getVisiblePost(){
   const posts = document.querySelectorAll('.post');
   const mid = window.innerHeight / 2;
@@ -245,7 +245,7 @@ function getVisiblePost(){
   let minDist = Infinity;
   posts.forEach(p => {
     const r = p.getBoundingClientRect();
-    // 距離は要素の中央とビューポート中央の差
+    
     const center = r.top + r.height / 2;
     const dist = Math.abs(center - mid);
     if (dist < minDist && r.bottom > 0 && r.top < window.innerHeight) {
@@ -256,7 +256,7 @@ function getVisiblePost(){
   return closest;
 }
 
-/* サイド広告を投稿番号に応じて切り替える */
+
 function updateSideAd(){
   const cur = getVisiblePost();
   if (!cur) return;
@@ -266,19 +266,19 @@ function updateSideAd(){
   sideAdImg.src = ads[adIndex];
 }
 
-/* 初期とスクロール時に広告更新 */
+
 window.addEventListener('load', updateSideAd);
 window.addEventListener('scroll', () => {
-  // throttle 風に少し遅延を入れると滑らか（軽量）
+  
   if (window._adTimer) clearTimeout(window._adTimer);
   window._adTimer = setTimeout(updateSideAd, 60);
 });
 
-/* optional: クリックで広告リンクに飛ばす（仮URL）*/
+
 document.getElementById('adBox').addEventListener('click', () => {
-  window.open("../hand/hand.html");
-}); 
-// いいね吹き出しの表示・非表示
+  window.location.href = "https://akage111.github.io/hand/";
+});
+
 const likeTip = document.getElementById('likeTip');
 const likeTipBtn = document.getElementById('likeTipBtn');
 
@@ -289,3 +289,4 @@ likeTipBtn.addEventListener('click', () => {
 </script>
 </body>
 </html>
+
